@@ -5,6 +5,8 @@ import org.soulcodeacademy.empresa.domain.Endereco;
 import org.soulcodeacademy.empresa.domain.Projeto;
 import org.soulcodeacademy.empresa.domain.dto.EmpregadoDTO;
 import org.soulcodeacademy.empresa.repositories.EmpregadoRepository;
+import org.soulcodeacademy.empresa.services.errors.ParametrosInsuficientesError;
+import org.soulcodeacademy.empresa.services.errors.RecursoNaoEncontradoError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +29,14 @@ public class EmpregadoService {
     }
 
     public Empregado buscarPorId(Integer id) {
-        return this.empregadoRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Não foi encontrado Empregado com o id "+ id + "!")
-        );
+        if(id == null) {
+            throw new ParametrosInsuficientesError("É preciso informar o id do empregado que deseja atualizar!");
+        } else {
+            return this.empregadoRepository.findById(id).orElseThrow(
+                    () -> new RecursoNaoEncontradoError("Não foi encontrado Empregado com o id "+ id + "!")
+            );
+        }
+
     }
 
     public List<Empregado> buscarPorNomeContendo(String nome) {
@@ -44,13 +51,18 @@ public class EmpregadoService {
     }
 
     public Empregado atualizar(Integer id, EmpregadoDTO dto) {
-        Empregado empregadoAtualizado = this.buscarPorId(id); //busca se existe Empregado cadastrado com este id e interrompe o método caso não encontre.
-        Endereco endereco = this.enderecoService.buscarPorId(dto.getIdEndereco());
-        empregadoAtualizado.setEndereco(endereco);
-        empregadoAtualizado.setEmail(dto.getEmail());
-        empregadoAtualizado.setNome(dto.getNome());
-        empregadoAtualizado.setSalario(dto.getSalario());
-        return this.empregadoRepository.save(empregadoAtualizado);
+        if(dto.getIdEndereco() == 0 || dto.getIdEndereco() == null){
+            throw new ParametrosInsuficientesError("É preciso informar o id do endereço do empregado!");
+        } else {
+            Empregado empregadoAtualizado = this.buscarPorId(id); //busca se existe Empregado cadastrado com este id e interrompe o método caso não encontre.
+            Endereco endereco = this.enderecoService.buscarPorId(dto.getIdEndereco());
+            empregadoAtualizado.setEndereco(endereco);
+            empregadoAtualizado.setEmail(dto.getEmail());
+            empregadoAtualizado.setNome(dto.getNome());
+            empregadoAtualizado.setSalario(dto.getSalario());
+            return this.empregadoRepository.save(empregadoAtualizado);
+        }
+
     }
 
     public  Empregado inserirProjeto(Integer idEmpregado, Integer idProjeto) {

@@ -3,6 +3,8 @@ package org.soulcodeacademy.empresa.services;
 import org.soulcodeacademy.empresa.domain.Projeto;
 import org.soulcodeacademy.empresa.domain.dto.ProjetoDTO;
 import org.soulcodeacademy.empresa.repositories.ProjetoRepository;
+import org.soulcodeacademy.empresa.services.errors.ParametrosInsuficientesError;
+import org.soulcodeacademy.empresa.services.errors.RecursoNaoEncontradoError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +21,14 @@ public class ProjetoService {
     }
 
     public Projeto buscarPorId(Integer id) {
-        return this.projetoRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Não foi encontrado projeto com este id + " + id + "!")
-        );
+        if(id == null) {
+            throw new ParametrosInsuficientesError("É preciso informar o id do projeto!");
+        } else {
+            return this.projetoRepository.findById(id).orElseThrow(
+                    () -> new RecursoNaoEncontradoError("Não foi encontrado projeto com o id " + id + "!")
+            );
+        }
+
     }
 
     public List<Projeto> buscarPorNomeContendo(String nome) {

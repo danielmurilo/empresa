@@ -23,7 +23,7 @@ public class Empregado {
     private String senha;
 
     @OneToOne
-    @JoinColumn(name = "id_endereco")
+    @JoinColumn(nullable = false, name = "id_endereco")
     private Endereco endereco;
 
     @ManyToMany(fetch = FetchType.EAGER)

@@ -3,6 +3,8 @@ package org.soulcodeacademy.empresa.services;
 import org.soulcodeacademy.empresa.domain.Endereco;
 import org.soulcodeacademy.empresa.domain.dto.EnderecoDTO;
 import org.soulcodeacademy.empresa.repositories.EnderecoRepository;
+import org.soulcodeacademy.empresa.services.errors.ParametrosInsuficientesError;
+import org.soulcodeacademy.empresa.services.errors.RecursoNaoEncontradoError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +21,14 @@ public class EnderecoService {
     }
 
     public Endereco buscarPorId(Integer id) {
-        return this.enderecoRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Não foi encontrado endereço com o id " + id + "!")
-        );
+        if(id == null) {
+            throw new ParametrosInsuficientesError("É preciso informar o id do endereço");
+        } else {
+            return this.enderecoRepository.findById(id).orElseThrow(
+                    () -> new RecursoNaoEncontradoError("Não foi encontrado endereço com o id " + id + "!")
+            );
+        }
+
     }
 
     public Endereco salvar(EnderecoDTO dto){

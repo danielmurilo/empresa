@@ -1,10 +1,13 @@
 package org.soulcodeacademy.empresa.services;
 
+import org.soulcodeacademy.empresa.controllers.errors.CustomErrorResponse;
 import org.soulcodeacademy.empresa.domain.Dependente;
 import org.soulcodeacademy.empresa.domain.Empregado;
 import org.soulcodeacademy.empresa.domain.dto.DependenteDTO;
 import org.soulcodeacademy.empresa.repositories.DependenteRepository;
 import org.soulcodeacademy.empresa.repositories.EmpregadoRepository;
+import org.soulcodeacademy.empresa.services.errors.ParametrosInsuficientesError;
+import org.soulcodeacademy.empresa.services.errors.RecursoNaoEncontradoError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +28,7 @@ public class DependenteService {
 
     public Dependente buscarPorId(Integer id){
         return this.dependenteRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Não foi localizado dependente com o id + " + id + "!")
+                () -> new RecursoNaoEncontradoError("Não foi localizado dependente com o id " + id + "!")
         );
     }
 
@@ -42,11 +45,16 @@ public class DependenteService {
     }
 
     public Dependente atualizar(Integer id, DependenteDTO dto){
-        this.buscarPorId(id); //busca se existe Dependente cadastrado com este id e interrompe o método caso não encontre.
-        Empregado responsavel = this.empregadoService.buscarPorId(dto.getIdResponsavel());
-        Dependente dependenteAtualizado = new Dependente(id, dto.getNome(), dto.getIdade());
-        dependenteAtualizado.setResponsavel(responsavel);
-        return this.dependenteRepository.save(dependenteAtualizado);
+        if(id == null) {
+            throw new ParametrosInsuficientesError("É preciso informar o id do dependente que deseja atualizar!");
+        } else {
+            this.buscarPorId(id); //busca se existe Dependente cadastrado com este id e interrompe o método caso não encontre.
+            Empregado responsavel = this.empregadoService.buscarPorId(dto.getIdResponsavel());
+            Dependente dependenteAtualizado = new Dependente(id, dto.getNome(), dto.getIdade());
+            dependenteAtualizado.setResponsavel(responsavel);
+            return this.dependenteRepository.save(dependenteAtualizado);
+        }
+
     }
 
     //Não há método para deletar dependentes pois a exclusão pode causar conflito com outras entidades já persistidas.

@@ -20,7 +20,7 @@ public class EnderecoController {
         return this.enderecoService.listar();
     }
 
-    @GetMapping("/projetos/{id}")
+    @GetMapping("/enderecos/{id}")
     public Endereco buscarPorId(@PathVariable Integer id) {
         return this.enderecoService.buscarPorId(id);
     }
